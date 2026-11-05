@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Machine Learning Practical 2: KNN and SVM classification using the emails.csv dataset. Complete Python code and Google Colab instructions.">
+  <title>Machine Learning Practical 2 | KNN &amp; SVM</title>
+  <style>
+    :root{--bg:#f5f7fb;--surface:#fff;--text:#172033;--muted:#64748b;--line:#e2e8f0;--primary:#3157d5;--primary-dark:#2444b5;--code:#101827;--green:#15803d}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.6}
+    .wrap{width:min(1050px,calc(100% - 32px));margin:0 auto}
+    header{padding:54px 0 38px;background:linear-gradient(135deg,#172554,#3157d5);color:#fff}
+    .eyebrow{font-size:.78rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:#c7d2fe}
+    h1{font-size:clamp(2rem,5vw,3.25rem);line-height:1.12;margin:12px 0}
+    header p{max-width:700px;color:#e0e7ff;margin:0;font-size:1.05rem}
+    .tags{display:flex;gap:9px;flex-wrap:wrap;margin-top:22px}
+    .tag{border:1px solid #ffffff55;background:#ffffff15;border-radius:999px;padding:5px 12px;font-size:.85rem}
+    main{padding:28px 0 60px}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
+    .card,.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:0 5px 18px #17203308}
+    .card{padding:18px}.card strong{display:block;font-size:1.05rem}.card span{color:var(--muted);font-size:.9rem}
+    .panel{padding:24px;margin:18px 0}
+    h2{font-size:1.35rem;margin:0 0 12px}h3{font-size:1.05rem;margin:18px 0 6px}
+    p{margin:8px 0;color:#334155}
+    ol,ul{padding-left:22px;color:#334155}li{margin:7px 0}
+    a{color:var(--primary);font-weight:600}
+    .notice{border-left:4px solid #eab308;background:#fffbeb;padding:13px 16px;border-radius:8px;color:#713f12;margin:14px 0}
+    .success{border-left:4px solid #22c55e;background:#f0fdf4;padding:13px 16px;border-radius:8px;color:#166534;margin:14px 0}
+    .code-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+    .actions{display:flex;gap:8px;flex-wrap:wrap}
+    button{border:0;border-radius:9px;padding:10px 14px;font-weight:700;cursor:pointer;background:var(--primary);color:#fff}
+    button:hover{background:var(--primary-dark)}button.secondary{background:#e8edff;color:#233e9b}button.secondary:hover{background:#dce4ff}
+    pre{margin:0;padding:20px;background:var(--code);color:#e5e7eb;border-radius:12px;overflow:auto;max-height:780px;font-size:.86rem;line-height:1.55;tab-size:4}
+    code{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace}
+    .small{font-size:.9rem;color:var(--muted)}
+    footer{text-align:center;padding:26px 0 40px;color:var(--muted);font-size:.88rem}
+    @media(max-width:700px){.grid{grid-template-columns:1fr}.panel{padding:18px}header{padding:40px 0 30px}pre{font-size:.78rem;padding:15px}}
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="eyebrow">Machine Learning · Practical 02</div>
+    <h1>KNN &amp; SVM Classification</h1>
+    <p>Email classification using the <strong>emails.csv</strong> dataset, with model evaluation and an accuracy comparison chart.</p>
+    <div class="tags"><span class="tag">Python</span><span class="tag">Scikit-learn</span><span class="tag">Google Colab</span><span class="tag">KNN + Linear SVM</span></div>
+  </div>
+</header>
+<main class="wrap">
+  <section class="grid" aria-label="Practical overview">
+    <div class="card"><strong>Dataset</strong><span>emails.csv inside a ZIP archive</span></div>
+    <div class="card"><strong>Train / test split</strong><span>80% training · 20% testing</span></div>
+    <div class="card"><strong>Algorithms</strong><span>K-Nearest Neighbors · Linear SVM</span></div>
+  </section>
+
+  <section class="panel">
+    <h2>How to run this practical</h2>
+    <ol>
+      <li>Open <a href="https://colab.research.google.com/" target="_blank" rel="noopener">Google Colab</a> and sign in.</li>
+      <li>Select <strong>File → New notebook</strong>.</li>
+      <li>Copy the complete Python program below and paste it into the first code cell.</li>
+      <li>Click the <strong>Run ▶</strong> button or press <strong>Shift + Enter</strong>.</li>
+      <li>When prompted, upload the ZIP archive that contains <code>emails.csv</code>.</li>
+      <li>Wait for the dataset details, KNN and SVM reports, confusion matrices, and comparison chart.</li>
+    </ol>
+    <div class="success"><strong>Tip:</strong> You do not need to install Python or scikit-learn when using Google Colab.</div>
+  </section>
+
+  <section class="panel">
+    <div class="code-head">
+      <div><h2 style="margin:0">Final corrected Python code</h2><div class="small">Copy this code into one Google Colab cell.</div></div>
+      <div class="actions"><button type="button" id="copyBtn">Copy code</button><button type="button" class="secondary" id="downloadBtn">Download .py</button></div>
+    </div>
+    <pre><code id="pythonCode"># ==============================================
+# MACHINE LEARNING PRACTICAL 2
+# KNN AND SVM CLASSIFICATION
+# ==============================================
+
+# 1. Import Libraries
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import zipfile
+import os
+
+from google.colab import files
+
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
+
+from sklearn.metrics import (
+    accuracy_score,
+    classification_report,
+    confusion_matrix
+)
+
+# ==============================================
+# 2. Upload Dataset ZIP File
+# ==============================================
+
+print("Upload your dataset ZIP file:")
+
+uploaded = files.upload()
+
+uploaded_zip = None
+
+for filename in uploaded.keys():
+    if filename.lower().endswith('.zip'):
+        uploaded_zip = filename
+        break
+
+if uploaded_zip is None:
+    raise ValueError("Please upload a valid ZIP file.")
+
+# ==============================================
+# 3. Extract emails.csv from ZIP File
+# ==============================================
+
+with zipfile.ZipFile(uploaded_zip, 'r') as zip_ref:
+
+    csv_files = [
+        name for name in zip_ref.namelist()
+        if os.path.basename(name).lower() == 'emails.csv'
+    ]
+
+    if not csv_files:
+        raise FileNotFoundError(
+            "emails.csv not found inside ZIP file."
+        )
+
+    with zip_ref.open(csv_files[0]) as csv_file:
+        df = pd.read_csv(csv_file)
+
+print("\nDataset extracted successfully!")
+
+# ==============================================
+# 4. Display Dataset
+# ==============================================
+
+print("\nDataset Shape:", df.shape)
+
+print("\nFirst 5 Rows:")
+print(df.head())
+
+# ==============================================
+# 5. Data Preprocessing
+# ==============================================
+
+df.dropna(inplace=True)
+
+# Check required columns
+if 'Email No.' not in df.columns or 'Prediction' not in df.columns:
+    raise ValueError("Required columns are missing from dataset.")
+
+# Independent variables
+X = df.drop(['Email No.', 'Prediction'], axis=1)
+
+# Dependent variable
+y = df['Prediction']
+
+print("\nFeatures Shape:", X.shape)
+print("Target Shape:", y.shape)
+
+# ==============================================
+# 6. Split Dataset
+# ==============================================
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.2,
+    random_state=42
+)
+
+print("\nTraining Set Shape:", X_train.shape)
+print("Testing Set Shape:", X_test.shape)
+
+# ==============================================
+# 7. K-Nearest Neighbors (KNN)
+# ==============================================
+
+knn = KNeighborsClassifier(n_neighbors=5)
+
+# Train KNN model
+knn.fit(X_train, y_train)
+
+# Predict test data
+knn_pred = knn.predict(X_test)
+
+# Calculate accuracy
+knn_accuracy = accuracy_score(y_test, knn_pred)
+
+print("\n========== KNN RESULTS ==========")
+
+print("\nKNN Accuracy:", knn_accuracy)
+
+print("\nKNN Confusion Matrix:")
+print(confusion_matrix(y_test, knn_pred))
+
+print("\nKNN Classification Report:")
+print(classification_report(y_test, knn_pred))
+
+# ==============================================
+# 8. Support Vector Machine (SVM)
+# ==============================================
+
+svm = SVC(kernel='linear')
+
+# Train SVM model
+svm.fit(X_train, y_train)
+
+# Predict test data
+svm_pred = svm.predict(X_test)
+
+# Calculate accuracy
+svm_accuracy = accuracy_score(y_test, svm_pred)
+
+print("\n========== SVM RESULTS ==========")
+
+print("\nSVM Accuracy:", svm_accuracy)
+
+print("\nSVM Confusion Matrix:")
+print(confusion_matrix(y_test, svm_pred))
+
+print("\nSVM Classification Report:")
+print(classification_report(y_test, svm_pred))
+
+# ==============================================
+# 9. Compare Algorithm Performance
+# ==============================================
+
+comparison = pd.DataFrame({
+    "Algorithm": ["KNN", "SVM"],
+    "Accuracy": [knn_accuracy, svm_accuracy]
+})
+
+print("\n========== ACCURACY COMPARISON ==========")
+
+print(comparison)
+
+# ==============================================
+# 10. Plot Accuracy Comparison Graph
+# ==============================================
+
+plt.figure(figsize=(6, 4))
+
+plt.bar(
+    comparison["Algorithm"],
+    comparison["Accuracy"],
+    color="blue"
+)
+
+plt.title("Accuracy Comparison")
+plt.xlabel("Algorithm")
+plt.ylabel("Accuracy")
+
+plt.ylim(0, 1.0)
+
+for index, row in comparison.iterrows():
+
+    plt.text(
+        index,
+        row["Accuracy"] + 0.02,
+        f'{row["Accuracy"]:.4f}',
+        ha="center",
+        fontweight="bold"
+    )
+
+plt.show()
+
+# ==============================================
+# 11. Display Best Algorithm
+# ==============================================
+
+if knn_accuracy > svm_accuracy:
+
+    print("\nKNN performs better.")
+
+elif svm_accuracy > knn_accuracy:
+
+    print("\nSVM performs better.")
+
+else:
+
+    print("\nBoth algorithms have equal accuracy.")
+
+print("\nPractical 2 Executed Successfully!")</code></pre>
+    <p class="small" id="copyStatus" aria-live="polite"></p>
+  </section>
+
+  <section class="panel">
+    <h2>Dataset required</h2>
+    <p>Upload a <code>.zip</code> file containing a file named exactly <code>emails.csv</code>. The program searches inside the ZIP archive for that CSV, including if it is stored in a subfolder.</p>
+    <div class="notice"><strong>Important:</strong> This is a browser page that displays and lets you copy/download the Python program. The Python machine-learning code itself runs in Google Colab, not on the Netlify website.</div>
+  </section>
+
+  <section class="panel">
+    <h2>Publish this page on Netlify</h2>
+    <ol>
+      <li>Download this file and make sure its filename is <code>index.html</code>.</li>
+      <li>Open <a href="https://app.netlify.com/drop" target="_blank" rel="noopener">Netlify Drop</a>.</li>
+      <li>Sign in or create a Netlify account.</li>
+      <li>Drag and drop the folder containing <code>index.html</code> onto the Netlify Drop area. You can also upload a ZIP containing the HTML file at its root.</li>
+      <li>Netlify will publish the page and provide a public website URL that you can open from anywhere.</li>
+    </ol>
+    <p class="small">Anyone with your published link can view the page and copy or download the code.</p>
+  </section>
+</main>
+<footer><div class="wrap">Machine Learning Practical 2 · KNN &amp; SVM · Educational use</div></footer>
+<script>
+  const codeElement = document.getElementById('pythonCode');
+  const copyButton = document.getElementById('copyBtn');
+  const downloadButton = document.getElementById('downloadBtn');
+  const status = document.getElementById('copyStatus');
+
+  copyButton.addEventListener('click', async () => {
+    const code = codeElement.textContent;
+    try {
+      await navigator.clipboard.writeText(code);
+      status.textContent = 'Code copied to clipboard.';
+    } catch (error) {
+      const range = document.createRange();
+      range.selectNodeContents(codeElement);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      status.textContent = 'Select the highlighted code and copy it.';
+    }
+  });
+
+  downloadButton.addEventListener('click', () => {
+    const blob = new Blob([codeElement.textContent], {type: 'text/x-python;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'machine_learning_practical_2.py';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  });
+</script>
+</body>
+</html>
