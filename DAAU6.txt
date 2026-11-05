@@ -1,0 +1,99 @@
+
+import random
+import time
+
+# Deterministic Quick Sort
+def deterministic_quick_sort(arr):
+    if len(arr) <= 1:
+        return arr
+
+    pivot = arr[0]
+
+    left = [x for x in arr[1:] if x <= pivot]
+    right = [x for x in arr[1:] if x > pivot]
+
+    return (
+        deterministic_quick_sort(left)
+        + [pivot]
+        + deterministic_quick_sort(right)
+    )
+
+
+# Randomized Quick Sort
+def randomized_quick_sort(arr):
+    if len(arr) <= 1:
+        return arr
+
+    pivot_index = random.randint(0, len(arr) - 1)
+    pivot = arr[pivot_index]
+
+    remaining = arr[:pivot_index] + arr[pivot_index + 1:]
+
+    left = [x for x in remaining if x <= pivot]
+    right = [x for x in remaining if x > pivot]
+
+    return (
+        randomized_quick_sort(left)
+        + [pivot]
+        + randomized_quick_sort(right)
+    )
+
+
+# Main Program
+if __name__ == "__main__":
+
+    print("==============================================")
+    print(" DAA: QUICK SORT PERFORMANCE ANALYSIS")
+    print(" Deterministic and Randomized Quick Sort")
+    print("==============================================")
+
+    # Take input from user
+    n = int(input("Enter the number of elements: "))
+
+    arr = list(map(int, input("Enter the elements: ").split()))
+
+    if len(arr) != n:
+        print("Error: Please enter exactly", n, "elements.")
+
+    else:
+
+        # Deterministic Quick Sort
+        arr1 = arr.copy()
+
+        start_time = time.perf_counter()
+        sorted_arr1 = deterministic_quick_sort(arr1)
+        end_time = time.perf_counter()
+
+        deterministic_time = end_time - start_time
+
+        # Randomized Quick Sort
+        arr2 = arr.copy()
+
+        start_time = time.perf_counter()
+        sorted_arr2 = randomized_quick_sort(arr2)
+        end_time = time.perf_counter()
+
+        randomized_time = end_time - start_time
+
+        # Display Results
+        print("\n========== RESULTS ==========")
+
+        print("Original Array:", arr)
+
+        print("\nDeterministic Quick Sort:")
+        print("Sorted Array:", sorted_arr1)
+        print("Execution Time: {:.8f} seconds".format(
+            deterministic_time
+        ))
+
+        print("\nRandomized Quick Sort:")
+        print("Sorted Array:", sorted_arr2)
+        print("Execution Time: {:.8f} seconds".format(
+            randomized_time
+        ))
+
+        print("\n========== COMPLEXITY ==========")
+        print("Best Case: O(n log n)")
+        print("Average Case: O(n log n)")
+        print("Worst Case: O(n^2)")
+        print("================================")
